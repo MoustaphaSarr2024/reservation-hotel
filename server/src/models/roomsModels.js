@@ -17,6 +17,10 @@ const Room = sequelize.define('Room', {
     type: DataTypes.DECIMAL(8, 2),
     allowNull: false,
   },
+  imageUrl: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 }, {
   tableName: 'rooms',
   timestamps: false

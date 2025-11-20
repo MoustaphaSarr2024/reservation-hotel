@@ -12,11 +12,11 @@ exports.getRooms = async (_req, res) => {
 
 exports.createRoom = async (req, res) => {
   try {
-    const { name, description, capacity, price } = req.body;
+    const { name, description, capacity, price, imageUrl } = req.body;
     if (!name || !capacity || !price) {
       return res.status(400).json({ message: 'Champs requis manquants' });
     }
-    const newRoom = await Room.create({ name, description, capacity, price });
+    const newRoom = await Room.create({ name, description, capacity, price, imageUrl });
     res.status(201).json(newRoom);
   } catch (err) {
     console.error(err);
@@ -27,12 +27,12 @@ exports.createRoom = async (req, res) => {
 exports.updateRoom = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, capacity, price } = req.body;
+    const { name, description, capacity, price, imageUrl } = req.body;
     const room = await Room.findByPk(id);
     if (!room) {
       return res.status(404).json({ message: 'Chambre non trouvée' });
     }
-    await room.update({ name, description, capacity, price });
+    await room.update({ name, description, capacity, price, imageUrl });
     res.json(room);
   } catch (err) {
     console.error(err);

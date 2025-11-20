@@ -5,6 +5,6 @@ const PORT = process.env.PORT || 3000;
 
 sync().then(() => {
     app.listen(PORT, () => {
-        console.log(`🚀  Back-end ready http://localhost:${PORT}`);
+        console.log(`🚀  Backend prêt http://localhost:${PORT}`);
     });
 });

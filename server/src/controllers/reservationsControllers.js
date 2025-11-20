@@ -6,7 +6,25 @@ exports.createReservation = async (req, res) => {
         const { guestName, guestEmail, roomId, dateFrom, dateTo } = req.body;
 
         if (!guestName || !guestEmail || !roomId || !dateFrom || !dateTo) {
-            return res.status(400).json({ message: 'Missing required fields' });
+            return res.status(400).json({ message: 'Champs requis manquants' });
+        }
+
+        // Validate email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(guestEmail)) {
+            return res.status(400).json({ message: 'Format d\'email invalide' });
+        }
+
+        // Validate dates
+        const start = new Date(dateFrom);
+        const end = new Date(dateTo);
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            return res.status(400).json({ message: 'Format de date invalide' });
+        }
+
+        if (end <= start) {
+            return res.status(400).json({ message: 'La date de fin doit être après la date de début' });
         }
 
         const conflictingReservation = await Reservation.findOne({
@@ -21,7 +39,7 @@ exports.createReservation = async (req, res) => {
         });
 
         if (conflictingReservation) {
-            return res.status(400).json({ message: 'Room is already booked for these dates' });
+            return res.status(400).json({ message: 'La chambre est déjà réservée pour ces dates' });
         }
 
         const newReservation = await Reservation.create({
@@ -36,7 +54,7 @@ exports.createReservation = async (req, res) => {
         res.status(201).json(newReservation);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Erreur serveur' });
     }
 };
 
@@ -46,7 +64,7 @@ exports.getReservations = async (req, res) => {
         res.json(reservations);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Erreur serveur' });
     }
 };
 
@@ -57,10 +75,10 @@ exports.updateReservation = async (req, res) => {
 
         const reservation = await Reservation.findByPk(id);
         if (!reservation) {
-            return res.status(404).json({ message: 'Reservation not found' });
+            return res.status(404).json({ message: 'Réservation non trouvée' });
         }
 
-        
+
         if (roomId || dateFrom || dateTo) {
             const checkRoomId = roomId || reservation.roomId;
             const checkDateFrom = dateFrom || reservation.dateFrom;
@@ -70,7 +88,7 @@ exports.updateReservation = async (req, res) => {
                 where: {
                     roomId: checkRoomId,
                     status: 'confirmed',
-                    id: { [Op.ne]: id }, 
+                    id: { [Op.ne]: id },
                     [Op.and]: [
                         { dateFrom: { [Op.lt]: checkDateTo } },
                         { dateTo: { [Op.gt]: checkDateFrom } },
@@ -79,7 +97,7 @@ exports.updateReservation = async (req, res) => {
             });
 
             if (conflictingReservation) {
-                return res.status(400).json({ message: 'Room is already booked for these dates' });
+                return res.status(400).json({ message: 'La chambre est déjà réservée pour ces dates' });
             }
         }
 
@@ -87,7 +105,7 @@ exports.updateReservation = async (req, res) => {
         res.json(reservation);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Erreur serveur' });
     }
 };
 
@@ -96,13 +114,13 @@ exports.deleteReservation = async (req, res) => {
         const { id } = req.params;
         const reservation = await Reservation.findByPk(id);
         if (!reservation) {
-            return res.status(404).json({ message: 'Reservation not found' });
+            return res.status(404).json({ message: 'Réservation non trouvée' });
         }
         await reservation.destroy();
-        res.json({ message: 'Reservation deleted' });
+        res.json({ message: 'Réservation supprimée' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Erreur serveur' });
     }
 };
 
@@ -111,7 +129,7 @@ exports.checkAvailability = async (req, res) => {
         const { roomId, dateFrom, dateTo } = req.query;
 
         if (!roomId || !dateFrom || !dateTo) {
-            return res.status(400).json({ message: 'Missing required query parameters' });
+            return res.status(400).json({ message: 'Paramètres de requête manquants' });
         }
 
         const conflictingReservation = await Reservation.findOne({
@@ -132,7 +150,7 @@ exports.checkAvailability = async (req, res) => {
         res.json({ available: true });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Erreur serveur' });
     }
 };
 

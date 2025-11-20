@@ -1,15 +1,10 @@
 const router = require('express').Router();
-const Room = require('../models/roomsModels');
+const roomsController = require('../controllers/roomsControllers');
 
 // GET /api/rooms
-router.get('/', async (_req, res) => {
-  try {
-    const rooms = await Room.findAll({ order: [['id', 'ASC']] });
-    res.json(rooms);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'DB error' });
-  }
-});
+router.get('/', roomsController.getRooms);
+router.post('/', roomsController.createRoom);
+router.put('/:id', roomsController.updateRoom);
+router.delete('/:id', roomsController.deleteRoom);
 
 module.exports = router;

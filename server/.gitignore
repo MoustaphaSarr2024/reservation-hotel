@@ -1,2 +1,6 @@
 node_modules
 .env
+test_crud.sh
+test_overlap.sh
+test_translation.sh
+test_validation_rooms.sh

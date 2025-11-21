@@ -71,7 +71,7 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">Gestion des Chambres</h1>
+                <h1 className="text-3xl font-bold text-white">Gestion des Chambres</h1>
                 <button
                     onClick={() => setIsCreating(!isCreating)}
                     className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
@@ -88,23 +88,23 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Nom</label>
-                                <input type="text" name="name" required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+                                <input type="text" name="name" required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-gray-900 bg-white" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Prix (€)</label>
-                                <input type="number" name="price" required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+                                <input type="number" name="price" required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-gray-900 bg-white" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Capacité</label>
-                                <input type="number" name="capacity" required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+                                <input type="number" name="capacity" required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-gray-900 bg-white" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Image URL</label>
-                                <input type="url" name="imageUrl" className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="https://..." />
+                                <input type="url" name="imageUrl" className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-gray-900 bg-white" placeholder="https://..." />
                             </div>
                             <div className="sm:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700">Description</label>
-                                <textarea name="description" rows={3} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+                                <textarea name="description" rows={3} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-gray-900 bg-white"></textarea>
                             </div>
                         </div>
                         <div className="flex justify-end">
@@ -116,30 +116,28 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
                 </div>
             )}
 
-            <div className="bg-white shadow overflow-hidden sm:rounded-md">
-                <ul className="divide-y divide-gray-200">
-                    {rooms.map((room) => (
-                        <li key={room.id} className="px-4 py-4 sm:px-6 flex items-center justify-between">
-                            <div className="flex items-center">
-                                <div className="flex-shrink-0 h-12 w-12">
-                                    <img className="h-12 w-12 rounded-full object-cover" src={room.imageUrl || "https://via.placeholder.com/150"} alt="" />
-                                </div>
-                                <div className="ml-4">
-                                    <div className="text-sm font-medium text-blue-600">{room.name}</div>
-                                    <div className="text-sm text-gray-500">{room.price}€ - {room.capacity} pers.</div>
-                                </div>
+            <ul className="space-y-4">
+                {rooms.map((room) => (
+                    <li key={room.id} className="bg-white shadow sm:rounded-md px-4 py-6 flex items-center justify-between">
+                        <div className="flex items-center">
+                            <div className="flex-shrink-0 h-12 w-12">
+                                <img className="h-12 w-12 rounded-full object-cover" src={room.imageUrl || "https://via.placeholder.com/150"} alt="" />
                             </div>
-                            <div className="flex space-x-2">
-                                <Form method="post" onSubmit={(e) => !confirm("Êtes-vous sûr ?") && e.preventDefault()}>
-                                    <input type="hidden" name="intent" value="delete" />
-                                    <input type="hidden" name="id" value={room.id} />
-                                    <button type="submit" className="text-red-600 hover:text-red-900">Supprimer</button>
-                                </Form>
+                            <div className="ml-4">
+                                <div className="text-sm font-medium text-blue-600">{room.name}</div>
+                                <div className="text-sm text-gray-500">{room.price}€ - {room.capacity} pers.</div>
                             </div>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+                        </div>
+                        <div className="flex space-x-2">
+                            <Form method="post" onSubmit={(e) => !confirm("Êtes-vous sûr ?") && e.preventDefault()}>
+                                <input type="hidden" name="intent" value="delete" />
+                                <input type="hidden" name="id" value={room.id} />
+                                <button type="submit" className="text-red-600 hover:text-red-900">Supprimer</button>
+                            </Form>
+                        </div>
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }

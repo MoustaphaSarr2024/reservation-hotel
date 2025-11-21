@@ -3,9 +3,9 @@ const Reservation = require('../models/reservationsModels');
 
 exports.createReservation = async (req, res) => {
     try {
-        const { guestName, guestEmail, roomId, dateFrom, dateTo } = req.body;
+        const { guestName, guestEmail, phoneNumber, dateOfBirth, roomId, dateFrom, dateTo } = req.body;
 
-        if (!guestName || !guestEmail || !roomId || !dateFrom || !dateTo) {
+        if (!guestName || !guestEmail || !phoneNumber || !dateOfBirth || !roomId || !dateFrom || !dateTo) {
             return res.status(400).json({ message: 'Champs requis manquants' });
         }
 
@@ -13,6 +13,19 @@ exports.createReservation = async (req, res) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(guestEmail)) {
             return res.status(400).json({ message: 'Format d\'email invalide' });
+        }
+
+        // Validate age (must be 18+)
+        const birthDate = new Date(dateOfBirth);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        if (age < 18) {
+            return res.status(400).json({ message: 'Vous devez avoir au moins 18 ans pour réserver.' });
         }
 
         // Validate dates
@@ -45,6 +58,8 @@ exports.createReservation = async (req, res) => {
         const newReservation = await Reservation.create({
             guestName,
             guestEmail,
+            phoneNumber,
+            dateOfBirth,
             roomId,
             dateFrom,
             dateTo,

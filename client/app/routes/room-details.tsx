@@ -33,6 +33,8 @@ export async function action({ request, params }: Route.ActionArgs) {
     const formData = await request.formData();
     const guestName = formData.get("guestName");
     const guestEmail = formData.get("guestEmail");
+    const phoneNumber = formData.get("phoneNumber");
+    const dateOfBirth = formData.get("dateOfBirth");
     const dateFrom = formData.get("dateFrom");
     const dateTo = formData.get("dateTo");
     const roomId = params.id;
@@ -46,6 +48,8 @@ export async function action({ request, params }: Route.ActionArgs) {
             body: JSON.stringify({
                 guestName,
                 guestEmail,
+                phoneNumber,
+                dateOfBirth,
                 roomId: parseInt(roomId!),
                 dateFrom,
                 dateTo,
@@ -143,7 +147,7 @@ export default function RoomDetails({ loaderData, actionData }: Route.ComponentP
                                             name="guestName"
                                             id="guestName"
                                             required
-                                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border text-gray-900 bg-white"
                                         />
                                     </div>
                                 </div>
@@ -158,7 +162,37 @@ export default function RoomDetails({ loaderData, actionData }: Route.ComponentP
                                             name="guestEmail"
                                             id="guestEmail"
                                             required
-                                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border text-gray-900 bg-white"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="sm:col-span-3">
+                                    <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
+                                        Numéro de téléphone
+                                    </label>
+                                    <div className="mt-1">
+                                        <input
+                                            type="tel"
+                                            name="phoneNumber"
+                                            id="phoneNumber"
+                                            required
+                                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border text-gray-900 bg-white"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="sm:col-span-3">
+                                    <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">
+                                        Date de naissance
+                                    </label>
+                                    <div className="mt-1">
+                                        <input
+                                            type="date"
+                                            name="dateOfBirth"
+                                            id="dateOfBirth"
+                                            required
+                                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border text-gray-900 bg-white"
                                         />
                                     </div>
                                 </div>
@@ -173,7 +207,7 @@ export default function RoomDetails({ loaderData, actionData }: Route.ComponentP
                                             name="dateFrom"
                                             id="dateFrom"
                                             required
-                                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border text-gray-900 bg-white"
                                         />
                                     </div>
                                 </div>
@@ -188,7 +222,7 @@ export default function RoomDetails({ loaderData, actionData }: Route.ComponentP
                                             name="dateTo"
                                             id="dateTo"
                                             required
-                                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border text-gray-900 bg-white"
                                         />
                                     </div>
                                 </div>

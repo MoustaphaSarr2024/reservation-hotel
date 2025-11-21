@@ -1,5 +1,5 @@
-import { useLoaderData, Form, useActionData, useNavigation, useSubmit } from "react-router";
-import { useState } from "react";
+import { useLoaderData, Form, useActionData, useNavigation, useSubmit, useNavigate } from "react-router";
+import { useState, useEffect } from "react";
 import type { Route } from "./+types/admin";
 
 interface Room {
@@ -59,6 +59,14 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
     const [isCreating, setIsCreating] = useState(false);
     const navigation = useNavigation();
     const isSubmitting = navigation.state === "submitting";
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const isAuthenticated = localStorage.getItem("isAuthenticated");
+        if (!isAuthenticated) {
+            navigate("/login");
+        }
+    }, [navigate]);
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

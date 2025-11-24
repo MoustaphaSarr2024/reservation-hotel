@@ -1,5 +1,7 @@
-import { useLoaderData, Link } from "react-router";
+import { useLoaderData, Link, useSearchParams } from "react-router";
 import type { Route } from "./+types/rooms";
+import { useEffect } from "react";
+import toast from "react-hot-toast";
 
 interface Room {
     id: number;
@@ -33,6 +35,13 @@ export function meta({ }: Route.MetaArgs) {
 
 export default function Rooms({ loaderData }: Route.ComponentProps) {
     const { rooms } = loaderData;
+    const [searchParams] = useSearchParams();
+
+    useEffect(() => {
+        if (searchParams.get("success") === "true") {
+            toast.success("Réservation effectuée avec succès !");
+        }
+    }, [searchParams]);
 
     return (
         <div className="bg-white py-12">

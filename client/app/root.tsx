@@ -26,6 +26,8 @@ export const links: Route.LinksFunction = () => [
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
+import { Toaster } from "react-hot-toast";
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full">
@@ -41,6 +43,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {children}
         </main>
         <Footer />
+        <Toaster position="top-right" />
         <ScrollRestoration />
         <Scripts />
       </body>

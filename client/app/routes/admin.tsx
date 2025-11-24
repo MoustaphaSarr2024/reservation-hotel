@@ -1,6 +1,7 @@
 import { useLoaderData, Form, useActionData, useNavigation, useSubmit, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 import type { Route } from "./+types/admin";
+import toast from "react-hot-toast";
 
 interface Room {
     id: number;
@@ -29,7 +30,7 @@ export async function action({ request }: Route.ActionArgs) {
     if (intent === "delete") {
         const id = formData.get("id");
         await fetch(`http://localhost:3000/api/rooms/${id}`, { method: "DELETE" });
-        return { success: true };
+        return { success: true, message: "Chambre supprimée avec succès" };
     }
 
     if (intent === "create" || intent === "update") {
@@ -48,6 +49,7 @@ export async function action({ request }: Route.ActionArgs) {
                 headers,
                 body,
             });
+            return { success: true, message: "Chambre créée avec succès" };
         } else {
             const id = formData.get("id");
             await fetch(`http://localhost:3000/api/rooms/${id}`, {
@@ -55,8 +57,8 @@ export async function action({ request }: Route.ActionArgs) {
                 headers,
                 body,
             });
+            return { success: true, message: "Chambre mise à jour avec succès" };
         }
-        return { success: true };
     }
 
     return null;
@@ -66,7 +68,7 @@ export function meta({ }: Route.MetaArgs) {
     return [{ title: "Administration - Hôtel Kaay dalou" }];
 }
 
-export default function Admin({ loaderData }: Route.ComponentProps) {
+export default function Admin({ loaderData, actionData }: Route.ComponentProps) {
     const { rooms } = loaderData;
     const [isCreating, setIsCreating] = useState(false);
     const [editingRoom, setEditingRoom] = useState<Room | null>(null);
@@ -87,6 +89,12 @@ export default function Admin({ loaderData }: Route.ComponentProps) {
             setEditingRoom(null);
         }
     }, [isSubmitting]);
+
+    useEffect(() => {
+        if (actionData?.success && actionData?.message) {
+            toast.success(actionData.message);
+        }
+    }, [actionData]);
 
     const handleEdit = (room: Room) => {
         setEditingRoom(room);

@@ -51,7 +51,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { useLocation } from "react-router";
+import { useEffect } from "react";
+
 export default function App() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const isAuthenticated = sessionStorage.getItem("isAuthenticated");
+    // If authenticated and navigating away from admin (and not to login), logout
+    if (isAuthenticated && !location.pathname.startsWith("/admin") && location.pathname !== "/login") {
+      sessionStorage.removeItem("isAuthenticated");
+    }
+  }, [location]);
+
   return <Outlet />;
 }
 

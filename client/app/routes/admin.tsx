@@ -77,7 +77,7 @@ export default function Admin({ loaderData, actionData }: Route.ComponentProps) 
     const navigate = useNavigate();
 
     useEffect(() => {
-        const isAuthenticated = localStorage.getItem("isAuthenticated");
+        const isAuthenticated = sessionStorage.getItem("isAuthenticated");
         if (!isAuthenticated) {
             navigate("/login");
         }
@@ -106,18 +106,31 @@ export default function Admin({ loaderData, actionData }: Route.ComponentProps) 
         setEditingRoom(null);
     };
 
+    const handleLogout = () => {
+        sessionStorage.removeItem("isAuthenticated");
+        navigate("/login");
+    };
+
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-white">Gestion des Chambres</h1>
-                {!isCreating && (
+                <div className="flex space-x-4">
+                    {!isCreating && (
+                        <button
+                            onClick={() => setIsCreating(true)}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                        >
+                            Ajouter une chambre
+                        </button>
+                    )}
                     <button
-                        onClick={() => setIsCreating(true)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                        onClick={handleLogout}
+                        className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
                     >
-                        Ajouter une chambre
+                        Déconnexion
                     </button>
-                )}
+                </div>
             </div>
 
             {isCreating && (

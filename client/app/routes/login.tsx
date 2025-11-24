@@ -25,7 +25,7 @@ export default function Login() {
             }
 
             // Store auth state
-            localStorage.setItem("isAuthenticated", "true");
+            sessionStorage.setItem("isAuthenticated", "true");
             navigate("/admin");
         } catch (error) {
             setError("Erreur de connexion");

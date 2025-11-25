@@ -1,6 +1,9 @@
 const { Op } = require('sequelize');
 const Reservation = require('../models/reservationsModels');
 
+const { sendConfirmationEmail } = require('../utils/emailService');
+const Room = require('../models/roomsModels');
+
 exports.createReservation = async (req, res) => {
     try {
         const { guestName, guestEmail, phoneNumber, dateOfBirth, roomId, dateFrom, dateTo } = req.body;
@@ -55,6 +58,22 @@ exports.createReservation = async (req, res) => {
             return res.status(400).json({ message: 'La chambre est déjà réservée pour ces dates' });
         }
 
+        // Check if user already has a reservation for these dates (any room)
+        const userConflictingReservation = await Reservation.findOne({
+            where: {
+                guestEmail: guestEmail,
+                status: 'confirmed',
+                [Op.and]: [
+                    { dateFrom: { [Op.lt]: dateTo } },
+                    { dateTo: { [Op.gt]: dateFrom } },
+                ],
+            },
+        });
+
+        if (userConflictingReservation) {
+            return res.status(400).json({ message: 'Vous avez déjà une réservation pour cette période.' });
+        }
+
         const newReservation = await Reservation.create({
             guestName,
             guestEmail,
@@ -66,7 +85,37 @@ exports.createReservation = async (req, res) => {
             status: 'confirmed',
         });
 
-        res.status(201).json(newReservation);
+        // Send confirmation email
+        const room = await Room.findByPk(roomId);
+        const emailInfo = await sendConfirmationEmail(guestEmail, {
+            id: newReservation.id,
+            guestName,
+            roomName: room ? room.name : 'Chambre',
+            dateFrom,
+            dateTo
+        });
+
+        res.status(201).json({ ...newReservation.toJSON(), previewUrl: emailInfo ? emailInfo.previewUrl : null });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Erreur serveur' });
+    }
+};
+
+exports.getReservationById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const reservation = await Reservation.findByPk(id);
+        if (!reservation) {
+            return res.status(404).json({ message: 'Réservation non trouvée' });
+        }
+
+        // Fetch room details to include name
+        const room = await Room.findByPk(reservation.roomId);
+        const reservationData = reservation.toJSON();
+        reservationData.roomName = room ? room.name : 'Chambre inconnue';
+
+        res.json(reservationData);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Erreur serveur' });

@@ -1,8 +1,39 @@
 const Room = require('../models/roomsModels');
 
-exports.getRooms = async (_req, res) => {
+const { Op } = require('sequelize');
+const Reservation = require('../models/reservationsModels');
+
+exports.getRooms = async (req, res) => {
   try {
-    const rooms = await Room.findAll({ order: [['id', 'ASC']] });
+    const { dateFrom, dateTo } = req.query;
+    let rooms = await Room.findAll({ order: [['id', 'ASC']] });
+
+    if (dateFrom && dateTo) {
+      const busyRoomIds = await Reservation.findAll({
+        attributes: ['roomId'],
+        where: {
+          status: 'confirmed',
+          [Op.and]: [
+            { dateFrom: { [Op.lt]: dateTo } },
+            { dateTo: { [Op.gt]: dateFrom } },
+          ],
+        },
+        raw: true,
+      }).then(reservations => reservations.map(r => r.roomId));
+
+      rooms = rooms.map(room => {
+        const roomJson = room.toJSON();
+        roomJson.isAvailable = !busyRoomIds.includes(room.id);
+        return roomJson;
+      });
+    } else {
+      rooms = rooms.map(room => {
+        const roomJson = room.toJSON();
+        roomJson.isAvailable = true;
+        return roomJson;
+      });
+    }
+
     res.json(rooms);
   } catch (err) {
     console.error(err);

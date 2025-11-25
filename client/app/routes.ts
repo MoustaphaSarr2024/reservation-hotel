@@ -6,4 +6,5 @@ export default [
     route("rooms/:id", "routes/room-details.tsx"),
     route("admin", "routes/admin.tsx"),
     route("login", "routes/login.tsx"),
+    route("reservations/:id/edit", "routes/reservation-edit.tsx"),
 ] satisfies RouteConfig;

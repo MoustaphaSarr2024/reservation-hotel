@@ -20,7 +20,8 @@ async function sync() {
     }
   }
 
-  await sequelize.sync({ alter: true });
+  // Use simple sync for SQLite, force: true for development to recreate tables
+  await sequelize.sync({ force: false });
 
   if (isPostgres) {
     // 2. Add exclusion constraint

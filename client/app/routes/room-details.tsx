@@ -61,7 +61,9 @@ export async function action({ request, params }: Route.ActionArgs) {
             return { error: errorData.message || "Erreur lors de la réservation" };
         }
 
-        return redirect("/rooms?success=true");
+        const responseData = await response.json();
+        const previewUrl = responseData.previewUrl;
+        return redirect(`/rooms?success=true${previewUrl ? `&previewUrl=${encodeURIComponent(previewUrl)}` : ""}`);
     } catch (error) {
         return { error: "Erreur de connexion au serveur" };
     }

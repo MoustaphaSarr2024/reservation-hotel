@@ -14,8 +14,6 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'Identifiants invalides' });
         }
 
-        // In a real app, we would generate a JWT token here.
-        // For this MVP, we just return success.
         res.json({ message: 'Connexion réussie', admin: { email: admin.email } });
     } catch (err) {
         console.error(err);

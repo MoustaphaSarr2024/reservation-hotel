@@ -10,19 +10,29 @@ interface Room {
     capacity: number;
     price: string;
     imageUrl: string | null;
+    isAvailable?: boolean;
 }
 
-export async function loader() {
+export async function loader({ request }: Route.LoaderArgs) {
+    const url = new URL(request.url);
+    const dateFrom = url.searchParams.get("dateFrom");
+    const dateTo = url.searchParams.get("dateTo");
+
+    let apiUrl = "http://localhost:3000/api/rooms";
+    if (dateFrom && dateTo) {
+        apiUrl += `?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+    }
+
     try {
-        const response = await fetch("http://localhost:3000/api/rooms");
+        const response = await fetch(apiUrl);
         if (!response.ok) {
             throw new Error("Failed to fetch rooms");
         }
         const rooms: Room[] = await response.json();
-        return { rooms };
+        return { rooms, dateFrom, dateTo };
     } catch (error) {
         console.error("Error fetching rooms:", error);
-        return { rooms: [] };
+        return { rooms: [], dateFrom: null, dateTo: null };
     }
 }
 
@@ -34,14 +44,39 @@ export function meta({ }: Route.MetaArgs) {
 }
 
 export default function Rooms({ loaderData }: Route.ComponentProps) {
-    const { rooms } = loaderData;
-    const [searchParams] = useSearchParams();
+    const { rooms, dateFrom, dateTo } = loaderData;
+    const [searchParams, setSearchParams] = useSearchParams();
 
     useEffect(() => {
         if (searchParams.get("success") === "true") {
-            toast.success("Réservation effectuée avec succès !");
+            const previewUrl = searchParams.get("previewUrl");
+            toast.success(
+                (t) => (
+                    <span>
+                        Réservation effectuée !<br />
+                        {previewUrl && (
+                            <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="underline font-bold">
+                                Voir l'email
+                            </a>
+                        )}
+                    </span>
+                ),
+                { duration: 5000 }
+            );
+
+            // Clean up the URL params to prevent re-triggering on re-render
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete("success");
+            newParams.delete("previewUrl");
+            setSearchParams(newParams, { replace: true });
         }
-    }, [searchParams]);
+    }, [searchParams, setSearchParams]);
+
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set(e.target.name, e.target.value);
+        setSearchParams(newParams);
+    };
 
     return (
         <div className="bg-white py-12">
@@ -55,9 +90,45 @@ export default function Rooms({ loaderData }: Route.ComponentProps) {
                     </p>
                 </div>
 
+                {/* Date Filter */}
+                <div className="mt-8 max-w-xl mx-auto bg-gray-50 p-6 rounded-lg shadow-sm">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Vérifier la disponibilité</h3>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <label htmlFor="dateFrom" className="block text-sm font-medium text-gray-700">Arrivée</label>
+                            <input
+                                type="date"
+                                name="dateFrom"
+                                id="dateFrom"
+                                defaultValue={dateFrom || ""}
+                                onChange={handleDateChange}
+                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-gray-900 bg-white"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="dateTo" className="block text-sm font-medium text-gray-700">Départ</label>
+                            <input
+                                type="date"
+                                name="dateTo"
+                                id="dateTo"
+                                defaultValue={dateTo || ""}
+                                onChange={handleDateChange}
+                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-gray-900 bg-white"
+                            />
+                        </div>
+                    </div>
+                </div>
+
                 <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {rooms.map((room) => (
-                        <div key={room.id} className="flex flex-col rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                        <div key={room.id} className="flex flex-col rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 relative">
+                            {/* Availability Badge */}
+                            {dateFrom && dateTo && (
+                                <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-bold shadow-md ${room.isAvailable ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
+                                    {room.isAvailable ? "Disponible" : "Indisponible"}
+                                </div>
+                            )}
+
                             <div className="flex-shrink-0">
                                 <img
                                     className="h-48 w-full object-cover"
@@ -84,10 +155,11 @@ export default function Rooms({ loaderData }: Route.ComponentProps) {
                                         {room.price}€ <span className="text-sm font-normal text-gray-500">/ nuit</span>
                                     </div>
                                     <Link
-                                        to={`/rooms/${room.id}`}
-                                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                        to={room.isAvailable !== false ? `/rooms/${room.id}?dateFrom=${dateFrom || ""}&dateTo=${dateTo || ""}` : "#"}
+                                        className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${room.isAvailable === false ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
+                                        onClick={(e) => { if (room.isAvailable === false) e.preventDefault(); }}
                                     >
-                                        Réserver
+                                        {room.isAvailable === false ? "Indisponible" : "Réserver"}
                                     </Link>
                                 </div>
                             </div>

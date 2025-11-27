@@ -1,6 +1,31 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { API_URL } from "~/config";
 import type { Route } from "./+types/login";
+
+export async function clientAction({ request }: Route.ClientActionArgs) {
+    const formData = await request.formData();
+    const email = formData.get("email");
+    const password = formData.get("password");
+
+    try {
+        const response = await fetch(`${API_URL}/api/admin/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+        });
+
+        if (!response.ok) {
+            return { error: "Identifiants invalides" };
+        }
+
+        // Store auth state
+        sessionStorage.setItem("isAuthenticated", "true");
+        return { success: true };
+    } catch (error) {
+        return { error: "Erreur de connexion" };
+    }
+}
 
 export default function Login() {
     const navigate = useNavigate();
@@ -13,7 +38,7 @@ export default function Login() {
         const password = formData.get("password");
 
         try {
-            const response = await fetch("http://localhost:3000/api/auth/login", {
+            const response = await fetch(`${API_URL}/api/admin/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),

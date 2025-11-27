@@ -68,11 +68,11 @@ async function seed() {
             console.log('Admin créé avec succès !');
         }
 
-        process.exit(0);
+        return { success: true, message: 'Seeding completed' };
     } catch (error) {
         console.error('Erreur lors du seeding :', error);
-        process.exit(1);
+        throw error;
     }
 }
 
-seed();
+module.exports = seed;

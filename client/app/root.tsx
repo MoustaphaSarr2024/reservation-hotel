@@ -59,7 +59,6 @@ export default function App() {
 
   useEffect(() => {
     const isAuthenticated = sessionStorage.getItem("isAuthenticated");
-    // If authenticated and navigating away from admin (and not to login), logout
     if (isAuthenticated && !location.pathname.startsWith("/admin") && location.pathname !== "/login") {
       sessionStorage.removeItem("isAuthenticated");
     }

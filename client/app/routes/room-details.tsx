@@ -1,4 +1,5 @@
 import { useLoaderData, Form, useActionData, redirect, useNavigation } from "react-router";
+import { API_URL } from "~/config";
 import type { Route } from "./+types/room-details";
 
 interface Room {
@@ -10,26 +11,25 @@ interface Room {
     imageUrl: string | null;
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     try {
-        const response = await fetch(`http://localhost:3000/api/rooms`);
+        const response = await fetch(`${API_URL}/api/rooms`);
         if (!response.ok) {
             throw new Error("Failed to fetch rooms");
         }
         const rooms: Room[] = await response.json();
         const room = rooms.find((r) => r.id === parseInt(params.id));
-
         if (!room) {
             throw new Response("Not Found", { status: 404 });
         }
-
         return { room };
     } catch (error) {
+        if (error instanceof Response) throw error;
         throw new Response("Error fetching room", { status: 500 });
     }
 }
 
-export async function action({ request, params }: Route.ActionArgs) {
+export async function clientAction({ request, params }: Route.ClientActionArgs) {
     const formData = await request.formData();
     const guestName = formData.get("guestName");
     const guestEmail = formData.get("guestEmail");

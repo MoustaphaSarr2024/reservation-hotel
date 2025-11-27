@@ -1,4 +1,5 @@
 import { useLoaderData, Link, useSearchParams } from "react-router";
+import { API_URL } from "~/config";
 import type { Route } from "./+types/rooms";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
@@ -13,12 +14,12 @@ interface Room {
     isAvailable?: boolean;
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
     const url = new URL(request.url);
     const dateFrom = url.searchParams.get("dateFrom");
     const dateTo = url.searchParams.get("dateTo");
 
-    let apiUrl = "http://localhost:3000/api/rooms";
+    let apiUrl = `${API_URL}/api/rooms`;
     if (dateFrom && dateTo) {
         apiUrl += `?dateFrom=${dateFrom}&dateTo=${dateTo}`;
     }
@@ -64,7 +65,6 @@ export default function Rooms({ loaderData }: Route.ComponentProps) {
                 { duration: 5000 }
             );
 
-            // Clean up the URL params to prevent re-triggering on re-render
             const newParams = new URLSearchParams(searchParams);
             newParams.delete("success");
             newParams.delete("previewUrl");
@@ -90,7 +90,6 @@ export default function Rooms({ loaderData }: Route.ComponentProps) {
                     </p>
                 </div>
 
-                {/* Date Filter */}
                 <div className="mt-8 max-w-xl mx-auto bg-gray-50 p-6 rounded-lg shadow-sm">
                     <h3 className="text-lg font-medium text-gray-900 mb-4">Vérifier la disponibilité</h3>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -122,7 +121,6 @@ export default function Rooms({ loaderData }: Route.ComponentProps) {
                 <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {rooms.map((room) => (
                         <div key={room.id} className="flex flex-col rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 relative">
-                            {/* Availability Badge */}
                             {dateFrom && dateTo && (
                                 <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-bold shadow-md ${room.isAvailable ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
                                     {room.isAvailable ? "Disponible" : "Indisponible"}

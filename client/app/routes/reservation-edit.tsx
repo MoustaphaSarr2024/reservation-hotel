@@ -1,4 +1,5 @@
 import { useLoaderData, Form, useNavigation, redirect, Link } from "react-router";
+import { API_URL } from "~/config";
 import type { Route } from "./+types/reservation-edit";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -15,9 +16,9 @@ interface Reservation {
     status: string;
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     try {
-        const response = await fetch(`http://localhost:3000/api/reservations/${params.id}`);
+        const response = await fetch(`${API_URL}/api/reservations/${params.id}`);
         if (!response.ok) {
             throw new Error("Réservation non trouvée");
         }
@@ -28,12 +29,12 @@ export async function loader({ params }: Route.LoaderArgs) {
     }
 }
 
-export async function action({ request, params }: Route.ActionArgs) {
+export async function clientAction({ request, params }: Route.ClientActionArgs) {
     const formData = await request.formData();
     const intent = formData.get("intent");
 
     if (intent === "delete") {
-        await fetch(`http://localhost:3000/api/reservations/${params.id}`, { method: "DELETE" });
+        await fetch(`${API_URL}/api/reservations/${params.id}`, { method: "DELETE" });
         return redirect("/rooms?deleted=true");
     }
 
@@ -41,7 +42,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         const dateFrom = formData.get("dateFrom");
         const dateTo = formData.get("dateTo");
 
-        const response = await fetch(`http://localhost:3000/api/reservations/${params.id}`, {
+        const response = await fetch(`${API_URL}/api/reservations/${params.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ dateFrom, dateTo }),

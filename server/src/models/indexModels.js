@@ -12,7 +12,6 @@ async function sync() {
   const isPostgres = sequelize.getDialect() === 'postgres';
 
   if (isPostgres) {
-    // 1. Enable btree_gist extension (required for scalar types in GiST indexes)
     try {
       await sequelize.query('CREATE EXTENSION IF NOT EXISTS btree_gist;');
     } catch (err) {
@@ -20,12 +19,9 @@ async function sync() {
     }
   }
 
-  // Use simple sync for SQLite, force: true for development to recreate tables
   await sequelize.sync({ force: false });
 
   if (isPostgres) {
-    // 2. Add exclusion constraint
-    // We use try/catch because "ADD CONSTRAINT" throws if it already exists
     try {
       await sequelize.query(`
         ALTER TABLE reservations
@@ -38,7 +34,6 @@ async function sync() {
       `);
       console.log('Constraint no_overlap added successfully.');
     } catch (err) {
-      // Ignore error if constraint already exists (Postgres error 42710)
       if (err.original && err.original.code === '42710') {
         console.log('Constraint no_overlap already exists.');
       } else {

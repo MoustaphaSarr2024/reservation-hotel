@@ -1,5 +1,6 @@
 import { useLoaderData, Form, useActionData, useNavigation, useSubmit, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
+import { API_URL } from "~/config";
 import type { Route } from "./+types/admin";
 import toast from "react-hot-toast";
 
@@ -12,9 +13,9 @@ interface Room {
     imageUrl: string | null;
 }
 
-export async function loader() {
+export async function clientLoader() {
     try {
-        const response = await fetch("http://localhost:3000/api/rooms");
+        const response = await fetch(`${API_URL}/api/rooms`);
         if (!response.ok) throw new Error("Failed to fetch rooms");
         const rooms: Room[] = await response.json();
         return { rooms };
@@ -23,7 +24,7 @@ export async function loader() {
     }
 }
 
-export async function action({ request }: Route.ActionArgs) {
+export async function clientAction({ request }: Route.ClientActionArgs) {
     const formData = await request.formData();
     const intent = formData.get("intent");
 

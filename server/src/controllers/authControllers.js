@@ -8,9 +8,13 @@ exports.login = async (req, res) => {
             return res.status(400).json({ message: 'Email et mot de passe requis' });
         }
 
+        console.log('Login attempt:', { email, password });
         const admin = await Admin.findOne({ where: { email } });
+        console.log('Admin found:', admin ? 'Yes' : 'No');
+        if (admin) console.log('DB Password:', admin.password);
 
         if (!admin || admin.password !== password) {
+            console.log('Password match:', admin && admin.password === password);
             return res.status(401).json({ message: 'Identifiants invalides' });
         }
 

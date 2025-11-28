@@ -9,7 +9,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     const password = formData.get("password");
 
     try {
-        const response = await fetch(`${API_URL}/api/admin/login`, {
+        const response = await fetch(`${API_URL}/api/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password }),
@@ -38,7 +38,7 @@ export default function Login() {
         const password = formData.get("password");
 
         try {
-            const response = await fetch(`${API_URL}/api/admin/login`, {
+            const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
